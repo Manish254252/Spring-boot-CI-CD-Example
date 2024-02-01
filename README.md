@@ -1,54 +1,52 @@
-# Spring Boot CI/CD Workflow
+# CI/CD Workflow for Spring Boot Application
 
-This repository contains a sample Spring Boot application along with a GitHub Actions workflow that showcases a Continuous Integration and Continuous Deployment (CI/CD) pipeline.
+This project showcases a Continuous Integration and Continuous Deployment (CI/CD) workflow for a Spring Boot application. The workflow is implemented using GitHub Actions, and it includes building a Docker image and pushing it to Docker Hub.
 
-## Overview
+## Workflow Overview
 
-The purpose of this project is to illustrate how to set up an automated CI/CD workflow for a Spring Boot application using GitHub Actions. The workflow includes building and testing the application, and on successful builds, deploying the application to a server or a cloud platform.
+The CI/CD workflow involves the following steps:
 
-## Features
+1. **Build and Test:**
+   - The project is built and tested whenever changes are pushed to the `master` branch or when pull requests are created.
 
-- Automated building and testing of the Spring Boot application.
-- Automated deployment to a server or cloud platform on successful builds.
-- Demonstrates the use of GitHub Actions for CI/CD.
-- Integrates with popular CI/CD tools and services.
+2. **Docker Image Build:**
+   - Upon successful build and tests, a Docker image of the Spring Boot application is created.
 
-## CI/CD Workflow
+3. **Push to Docker Hub:**
+   - The Docker image is pushed to Docker Hub, making it available for deployment.
 
-The CI/CD workflow is defined in the [.github/workflows/main.yml](.github/workflows/main.yml) file. It includes the following steps:
+## CI/CD Configuration
 
-1. **Checkout Code:**
-   - The workflow starts by checking out the source code from the repository.
+The CI/CD workflow is configured using GitHub Actions. The workflow file (`.github/workflows/maven.yml`) defines the sequence of steps to be executed.
 
-2. **Set Up Java Environment:**
-   - Sets up the Java environment using GitHub Actions' `setup-java` action.
+```yaml
+name: CI/CD Workflow
 
-3. **Build and Test:**
-   - Builds the Spring Boot application using Maven.
-   - Runs tests to ensure the application's correctness.
+on:
+  push:
+    branches:
+      - master
 
-4. **Deploy (Example):**
-   - Deploys the application to a predefined environment (e.g., server, cloud platform).
-   - This step serves as a placeholder; you can customize it based on your deployment requirements.
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-## Usage
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
 
-To use this CI/CD workflow for your Spring Boot projects, follow these steps:
+    - name: Set up JDK 17
+      uses: actions/setup-java@v2
+      with:
+        java-version: '17'
 
-1. **Customize Workflow:**
-   - Customize the [.github/workflows/main.yml](.github/workflows/main.yml) file to fit your project structure and requirements.
+    - name: Build and Test
+      run: mvn clean install
 
-2. **Environment Variables:**
-   - If your deployment requires sensitive information (e.g., API keys), use GitHub Secrets or environment variables in the workflow.
+    - name: Build Docker Image
+      run: docker build -t your-dockerhub-username/spring-boot-app:latest .
 
-3. **Push to Repository:**
-   - Push your changes to the GitHub repository, and the workflow will automatically trigger.
-
-## Contributing
-
-Feel free to contribute to this project by opening issues or pull requests. Your feedback and suggestions are welcome!
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
-
+    - name: Push to Docker Hub
+      run: |
+        docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
+        docker push your-dockerhub-username/spring-boot-app:latest
